@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\QML\02_OpenGL\ProjectOpenGL1226\learn-open-glcn;D:\QML\02_OpenGL\ProjectOpenGL1226\learn-open-glcn\OpenGL_libs\glfw-3.3.6.bin.WIN64\include;D:\QML\02_OpenGL\ProjectOpenGL1226\learn-open-glcn\OpenGL_libs\glad\include;I:\0_Qt\0_Shader\OpenGL_BIlibili\MyCodes\ProjectOpenGL1205\OpenGL_libs\glad\include;I:\0_Qt\0_Shader\OpenGL_BIlibili\MyCodes\ProjectOpenGL1205\OpenGL_libs\glfw-3.3.6.bin.WIN64\include;I:\0_Qt\0_Shader\OpenGL_BIlibili\MyCodes\ProjectOpenGL1205;D:\QML\02_OpenGL\ProjectOpenGL1226\learn-open-glcn\glm;I:\0_Qt\0_Shader\OpenGL_BIlibili\MyCodes\ProjectOpenGL1205\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\QML\02_OpenGL\ProjectOpenGL1226\learn-open-glcn\OpenGL_libs\glfw-3.3.6.bin.WIN64\lib-vc2022;I:\0_Qt\0_Shader\OpenGL_BIlibili\MyCodes\ProjectOpenGL1205\OpenGL_libs\glfw-3.3.6.bin.WIN64\lib-vc2022;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)OpenGL_libs\glad\include;$(SolutionDir)OpenGL_libs\glfw-3.3.6.bin.WIN64\include;$(SolutionDir)glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)OpenGL_libs\glfw-3.3.6.bin.WIN64\lib-vc2022;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
