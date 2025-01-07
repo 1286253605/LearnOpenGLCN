@@ -87,8 +87,11 @@ int main()
     // color attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // glVertexAttribPointer 是一个用于指定顶点属性数据的OpenGL函数，它将顶点属性的格式和数据源与当前的顶点缓冲对象关联起来。
     // texture coord attribute
-	// 顶点属性的索引值为2 顶点属性的大小为2 顶点属性的类型为GL_FLOAT 顶点属性的是否标准化为GL_FALSE 顶点属性的步长为8*sizeof(float) 顶点属性的偏移量为6*sizeof(float)
+	// 顶点属性的索引值为2 顶点属性的大小为2(包含两个分量) 顶点属性的类型为GL_FLOAT 顶点属性的是否标准化为GL_FALSE 顶点属性的步长为8*sizeof(float) 顶点属性的偏移量为6*sizeof(float)
+	// 就是说 顶点属性的数据在VBO中的排列方式是 位置(3个float) 颜色(3个float) 纹理坐标(2个float) 所以纹理坐标的偏移量是6*sizeof(float) 
+	// 如上所述 在第一块内存中 位置(3个float) 颜色(3个float) 纹理坐标(2个float) 所以纹理坐标的偏移量是6*sizeof(float)
     // 索引值为2就是在 Shader中 使用layout( location=2 ) 修饰的变量
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     // 使能索引值为2 的变量
@@ -114,7 +117,9 @@ int main()
     unsigned char* data = stbi_load("./container.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
+		// 生成纹理 指定纹理目标 纹理的mipmap(多级渐远纹理)级别 把纹理存储成什么颜色格式(GL_RGB) 纹理的宽度 纹理的高度 纹理的边框宽度(0) 纹理的颜色格式(原图格式GL_RGB) 纹理的数据类型(存储为Byte数组) 纹理的数据
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		// 生成多级渐远纹理
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else

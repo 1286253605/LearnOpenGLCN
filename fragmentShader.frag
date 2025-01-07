@@ -2,9 +2,9 @@
 out vec4 FragColor;  
 in vec3 ourColor;
 in vec3 outVertPos;
-in vec2 TexCoord;
+in vec2 TexCoord;       // 从顶点着色器传递的纹理坐标 范围是 [0,1]
 
-uniform sampler2D texture1;
+uniform sampler2D texture1; // 纹理采样器 以纹理类型作为后缀 1D 2D 3D 
 uniform sampler2D texture2; 
 
 void main()
