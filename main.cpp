@@ -56,6 +56,7 @@ int main()
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
+	// 只规定了四个点的颜色和纹理坐标 但是OpenGL会线性插值到整个图形上
     float vertices[] = {
         // positions          // colors           // texture coords
          0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
@@ -88,7 +89,9 @@ int main()
     glEnableVertexAttribArray(1);
     // texture coord attribute
 	// 顶点属性的索引值为2 顶点属性的大小为2 顶点属性的类型为GL_FLOAT 顶点属性的是否标准化为GL_FALSE 顶点属性的步长为8*sizeof(float) 顶点属性的偏移量为6*sizeof(float)
+    // 索引值为2就是在 Shader中 使用layout( location=2 ) 修饰的变量
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    // 使能索引值为2 的变量
     glEnableVertexAttribArray(2);
 
 
@@ -125,7 +128,7 @@ int main()
     unsigned int texture2;
     glGenTextures(1, &texture2);
     glBindTexture(GL_TEXTURE_2D, texture2); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-    // set the texture wrapping parameters
+    // set the texture wrapping parameters 设置纹理环绕方式 S轴和T轴
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // set texture filtering parameters
@@ -179,7 +182,7 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
