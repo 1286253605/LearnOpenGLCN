@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include<glm/glm/glm.hpp>
+#include<glm/glm/gtc/matrix_transform.hpp>
+#include<glm/glm/gtc/type_ptr.hpp>
 
 #include<Shader.h>
 
@@ -27,6 +30,8 @@ int main()
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+
+
 
     // glfw window creation
     // --------------------
@@ -96,6 +101,8 @@ int main()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     // 使能索引值为2 的变量
     glEnableVertexAttribArray(2);
+
+
 
     // 翻转一下图片
     // stbi_set_flip_vertically_on_load(true);
@@ -183,10 +190,25 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
+
+        // 创建变换矩阵
+        glm::mat4 trans(1.0f);
+        // 缩放矩阵
+        trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+        // 创建一个旋转矩阵 旋转轴是z轴(0.0, 0.0, 1.0) 旋转角度是90度
+        trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+
+
         // render container
         ourShader.use();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // 首先查询 ”transform“ 变量在着色器中的地址
+        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+        // 传递变换矩阵到着色器中 通过 glUniform 后缀为 Matrix4fv 的函数 
+        // 参数分别是 uniform 变量的位置值 1个矩阵的个数 是否需要转置矩阵的值 矩阵的值
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

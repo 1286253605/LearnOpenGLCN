@@ -32,5 +32,14 @@
     <ClInclude Include="stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="glm\glm\glm.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="glm\glm\gtc\matrix_transform.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="glm\glm\gtc\type_ptr.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -137,6 +137,9 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="glm\glm\glm.hpp" />
+    <ClInclude Include="glm\glm\gtc\matrix_transform.hpp" />
+    <ClInclude Include="glm\glm\gtc\type_ptr.hpp" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
