@@ -16,7 +16,8 @@ void main()
     // 纹理对应纹理坐标
     // FragColor = texture( outTexture, TexCoord );
     // FragColor = texture( outTexture, TexCoord ) * vec4(ourColor, 1.0);
+
     // mix第三个参数为 第2个texture的占比
-    FragColor = mix( texture( texture1, TexCoord ), texture( texture2, TexCoord ),  0.3);
+    FragColor = mix( texture( texture1, TexCoord ), texture( texture2, vec2( 1 - TexCoord.x, 1 - TexCoord.y ) ),  0.3);
     FragColor = FragColor * vec4(ourColor, 1.0);
 }

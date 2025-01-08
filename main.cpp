@@ -97,6 +97,9 @@ int main()
     // 使能索引值为2 的变量
     glEnableVertexAttribArray(2);
 
+    // 翻转一下图片
+    // stbi_set_flip_vertically_on_load(true);
+
 
     // load and create a texture 
     // -------------------------
@@ -151,7 +154,15 @@ int main()
 
     stbi_image_free(data);
     ourShader.use();
+	// glGetUniformLocation 这个函数从Shader中找到名为 "texture1" 的uniform变量的位置
+	// glUniform1i 这个函数把纹理单元的位置值赋给这个uniform变量
+    /*
+    * 在这个例子中，glUniform1i 函数将着色器程序中名为 texture1 的 uniform 变量设置为 0。
+    * 这个值通常用于指定纹理单元的索引。在 OpenGL 中，纹理单元是一个可以绑定纹理的抽象概念，
+    * 索引 0 对应于 GL_TEXTURE0，索引 1 对应于 GL_TEXTURE1，依此类推。
+    */
     glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+	// 这一行的效果和上面的效果是一样的 只是封装了起来而已
     ourShader.setInt("texture2", 1);
 
     // render loop
