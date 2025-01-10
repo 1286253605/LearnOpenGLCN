@@ -174,6 +174,7 @@ int main()
 
     // render loop
     // -----------
+	// 通过glfwWindowShouldClose函数检查GLFW是否被要求退出
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -193,40 +194,33 @@ int main()
         // render container
         ourShader.use();
 
-        // 创建变换矩阵
-        glm::mat4 trans(1.0f);
-        // 缩放矩阵
-        // trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-        // 创建一个旋转矩阵 旋转轴是z轴(0.0, 0.0, 1.0) 旋转角度是90度
-        // trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-        // 创建一个位移矩阵 位移向量是(0.5, -0.5, 0.0)
-        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
-        // 首先查询 ”transform“ 变量在着色器中的地址
-        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-        // 传递变换矩阵到着色器中 通过 glUniform 后缀为 Matrix4fv 的函数 
-        // 参数分别是 uniform 变量的位置值 1个矩阵的个数 是否需要转置矩阵的值 矩阵的值
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
+		// 模型矩阵 绕x轴旋转-55度
+        // modelMatrix = glm::rotate(modelMatrix, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
+        // 视图矩阵
+		glm::mat4 viewMatrix = glm::mat4(1.0f);
+		viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, -3.0f));
+		// 投影矩阵
+		glm::mat4 projectionMatrix = glm::mat4(1.0f);
+		// 需要把 SCR_WIDTH 和 SCR_HEIGHT 转换为float类型，否则它们相除的结果会是0
+		projectionMatrix = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
+		int modelLoc = glGetUniformLocation(ourShader.ID, "modelMatrix");
+		// 参数 分别是 uniform的位置 传递的矩阵的个数 转置矩阵的指针
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+		int viewLoc = glGetUniformLocation(ourShader.ID, "viewMatrix");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+		int projectionLoc = glGetUniformLocation(ourShader.ID, "projectionMatrix");
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+
+
         glBindVertexArray(VAO);
         // glDrawElements 会根据EBO中的索引值绘制出一个图形 参数分别是 图元类型 索引数量 索引的类型 索引的偏移量
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-
-        // second transformation
-// ---------------------
-        // 重置变换矩阵 重置为单位矩阵
-        trans = glm::mat4(1.0f); 
-        // 平移变换
-        trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
-		// 缩放变换 通过sin函数使得缩放因子在-1到1之间变化  static_cast是强制类型转换
-        float scaleAmount = static_cast<float>(sin(glfwGetTime()));
-        trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-		// &trans[0][0] => glm::value_ptr 效果一样; trans[0] 是 glm::vec4 类型的数据 也就是一个向量 通过 &trans[0][0] 可以得到向量的第一个元素的地址
-        // glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
-        // now with the uniform matrix being replaced with new transformations, draw it again.
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

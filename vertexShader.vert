@@ -7,7 +7,9 @@ out vec3 ourColor; // 向片段着色器输出一个颜色
 out vec3 outVertPos;
 out vec2 TexCoord;
 
-uniform mat4 transform;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 
 void main()
 {
@@ -19,6 +21,6 @@ void main()
     outVertPos = aPos;
     ourColor = aColor; // 将ourColor设置为我们从顶点数据那里得到的输入颜色
     TexCoord = aTexCoord;
-
-    gl_Position = transform * vec4( aPos, 1.0 );
+    // gl_Position = vec4( aPos, 1.0 );
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0);
 }
