@@ -12,15 +12,41 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-#define RADIUS ( 70.f )
+#define RADIUS ( 20.f )
+
+
+// 控制摄像机
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+// 在OpenGL中 Z轴正方向朝向观察者 如果设置cameraFront为(0.0f, 0.0f, 1.0f) [且相机初始Position.z > 0] 则无法观察到任何原点处的3D图形
+/*
+* X 轴：从左到右（正方向）
+* Y 轴：从下到上（正方向）
+* Z 轴：从屏幕内到屏幕外（正方向）
+*/
+// 具体看 processInput 函数的实现
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+// 世界坐标系中的上向量
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float deltaTime = 0.0f;	// 当前帧与上一帧的时间差
+float lastFrame = 0.0f; // 上一帧的时间
+
+// mouse
+bool firstMouse = true;
+float lastX = 400.0, lastY = 300.0;
+float yaw = -90.0f;
+float pitch = 0.0f;
+float fov = 45.0f;
+
 
 int main()
 {
-    // glfw: initialize and configure
+     //glfw: initialize and configure
     // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -48,6 +74,12 @@ int main()
 	// 设置窗口大小改变时的回调函数
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    // 获取鼠标位置
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // 获取滚轮位置
+    glfwSetScrollCallback(window, scroll_callback);
+
     // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -62,62 +94,7 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("vertexShader.vert", "fragmentShader.frag");
-er(s)) and configure vertex attributes
-    // ---------------------------
-    // set up vertex data (and buff---------------------------------------
-	// 只规定了四个点的颜色和纹理坐标 但是OpenGL会线性插值到整个图形上
-    // float vertices[] = {
-    //     // positions          // colors           // texture coords
-    //      0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-    //      0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-    //     -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-    //     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
-    // };
 
-    // 立方体顶点  不包含颜色 只有顶点属性和纹理坐标属性 所以3D图像混乱
-    //    float vertices[] = {
-    //     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-    //      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-    //     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    //      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    //     -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    //     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    //     -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    //     -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    //      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //      0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //      0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //      0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-    //      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    //      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    //     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-    //     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    //     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    // };
 // 立方体顶点，包含顶点坐标、颜色和纹理坐标
 float vertices[] = {
     // positions          // colors           // texture coords
@@ -272,17 +249,28 @@ glm::vec3 cubePositions[] = {
 	// 这一行的效果和上面的效果是一样的 只是封装了起来而已
     ourShader.setInt("texture2", 1);
 
+
+
     // 使用三个坐标  创建lookAt矩阵
     glm::mat4 view;
     view = glm::lookAt( glm::vec3(0.0f, 0.0f, 3.0f),        // 摄像机位置 
                         glm::vec3(0.0f, 0.0f, 0.0f),        // 物体位置
                         glm::vec3(0.0f, 1.0f, 0.0f) );      // 世界坐标系上向量
 
+
+	
+
     // render loop
     // -----------
 	// 通过glfwWindowShouldClose函数检查GLFW是否被要求退出
     while (!glfwWindowShouldClose(window))
     {
+		// 获取每一帧的时间
+		float currentFrame = static_cast<float>(glfwGetTime());
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+        
         // input
         // -----
         processInput(window);
@@ -312,7 +300,7 @@ glm::vec3 cubePositions[] = {
 		// 投影矩阵
 		glm::mat4 projectionMatrix = glm::mat4(1.0f);
 		// 需要把 SCR_WIDTH 和 SCR_HEIGHT 转换为float类型，否则它们相除的结果会是0
-		projectionMatrix = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		projectionMatrix = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
 		int modelLoc = glGetUniformLocation(ourShader.ID, "modelMatrix");
 		// 参数 分别是 uniform的位置 传递的矩阵的个数 转置矩阵的指针
@@ -324,12 +312,18 @@ glm::vec3 cubePositions[] = {
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
         // 旋转视角
-        float camPosX = sin(glfwGetTime()) * RADIUS;
-        float camPosZ = cos(glfwGetTime()) * RADIUS;
+        //float camPosX = sin(glfwGetTime()) * RADIUS;
+        //float camPosZ = cos(glfwGetTime()) * RADIUS;
         glm::mat4 view;
-        view = glm::lookAt( glm::vec3(camPosX, 0.0f, camPosZ),  // 摄像机位置随时间变化
-                            glm::vec3(0.0f, 0.0f, 0.0f), 
-                            glm::vec3(0.0f, 1.0f, 0.0f));
+        //view = glm::lookAt( glm::vec3(camPosX, 0.0f, camPosZ),  // 摄像机位置随时间变化
+        //                    glm::vec3(0.0f, 0.0f, 0.0f), 
+        //                    glm::vec3(0.0f, 1.0f, 0.0f));
+
+		// lookAt 函数参数 分别是 摄像机位置 摄像机看的位置 摄像机的上向量
+		// 第二个参数为目标物位置 也就是说摄像机看向的位置 值定义为 cameraPos + cameraFront 让摄像机不会一直盯着物体看 
+		// 简单来说就是让摄像机一直朝向一个方向(前方
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        // view = glm::lookAt(cameraPos, cameraFront, cameraUp);
         ourShader.setMat4("view", view);
 
 
@@ -379,6 +373,20 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+	// 摄像机移动
+	float cameraSpeed = static_cast<float>(2.5f * deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		// cameraFront.z < 0; 按下W时摄像机向前移动( Z轴的值不断减小 越来越接近原点 )
+		cameraPos += cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		// normalize 函数会将任何向量转换为单位向量 保持速度为匀速 否则在斜角移动时速度会变快
+		// glm::cross 函数会返回两个向量的叉乘结果 得到右向量 ( 摄像机视角 X 摄像机垂直方向轴即y轴 得到 右向量 )
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -388,4 +396,46 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.05f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    // 修改摄像机的朝向
+    cameraFront = glm::normalize(front);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    if (fov >= 1.0f && fov <= 45.0f)
+        fov -= yoffset;
+    if (fov <= 1.0f)
+        fov = 1.0f;
+    if (fov >= 45.0f)
+        fov = 45.0f;
 }
