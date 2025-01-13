@@ -387,6 +387,8 @@ void processInput(GLFWwindow* window)
 		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    // 练习1答案 每次更改使camera的y轴坐标为0 则实现了FPS摄像机( 只能在XZ平面移动 )
+    cameraPos.y = 0;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
