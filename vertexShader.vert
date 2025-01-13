@@ -10,6 +10,7 @@ out vec2 TexCoord;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 view;
 
 void main()
 {
@@ -22,5 +23,6 @@ void main()
     ourColor = aColor; // 将ourColor设置为我们从顶点数据那里得到的输入颜色
     TexCoord = aTexCoord;
     // gl_Position = vec4( aPos, 1.0 );
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0);
+    // gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0);
+    gl_Position = projectionMatrix * view * modelMatrix * vec4(aPos, 1.0);
 }

@@ -16,6 +16,7 @@ void processInput(GLFWwindow* window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+#define RADIUS ( 70.f )
 
 int main()
 {
@@ -61,9 +62,9 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("vertexShader.vert", "fragmentShader.frag");
-
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
+er(s)) and configure vertex attributes
+    // ---------------------------
+    // set up vertex data (and buff---------------------------------------
 	// 只规定了四个点的颜色和纹理坐标 但是OpenGL会线性插值到整个图形上
     // float vertices[] = {
     //     // positions          // colors           // texture coords
@@ -271,6 +272,12 @@ glm::vec3 cubePositions[] = {
 	// 这一行的效果和上面的效果是一样的 只是封装了起来而已
     ourShader.setInt("texture2", 1);
 
+    // 使用三个坐标  创建lookAt矩阵
+    glm::mat4 view;
+    view = glm::lookAt( glm::vec3(0.0f, 0.0f, 3.0f),        // 摄像机位置 
+                        glm::vec3(0.0f, 0.0f, 0.0f),        // 物体位置
+                        glm::vec3(0.0f, 1.0f, 0.0f) );      // 世界坐标系上向量
+
     // render loop
     // -----------
 	// 通过glfwWindowShouldClose函数检查GLFW是否被要求退出
@@ -315,6 +322,15 @@ glm::vec3 cubePositions[] = {
 
 		int projectionLoc = glGetUniformLocation(ourShader.ID, "projectionMatrix");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+        // 旋转视角
+        float camPosX = sin(glfwGetTime()) * RADIUS;
+        float camPosZ = cos(glfwGetTime()) * RADIUS;
+        glm::mat4 view;
+        view = glm::lookAt( glm::vec3(camPosX, 0.0f, camPosZ),  // 摄像机位置随时间变化
+                            glm::vec3(0.0f, 0.0f, 0.0f), 
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("view", view);
 
 
         // render container 画出立方体
